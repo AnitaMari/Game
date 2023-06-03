@@ -36,7 +36,7 @@ const Square = ({ children, isSelected, updateBoard, index }) => {
   //10. Cambiar el return anterior y poner que onClick update Board
   //el onClick llama al handleClick que llama la updateBoard. Luego veremos qué le pasamos ahí
   const handleClick = () => {
-    updateBoard()
+    updateBoard(index)
   }
 
   return (
@@ -45,6 +45,18 @@ const Square = ({ children, isSelected, updateBoard, index }) => {
     </div>
   )
 }
+
+//14.Podríamos crear arrays con las combinaciones ganadoras:
+const WINNER_COMBOS = [
+  [0, 1, 2], //si las x o las o están en esta posición
+  [3, 4, 5], //las 3 primeras son las combinaciones ganadoras horizontales, las otras 3 las verticales, y las últimas 2 las diagonales
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],  
+]
 
 function App() {
 //5. Movemos board dentro de la App y vamos a convertirlo en un estado.
@@ -63,9 +75,57 @@ const [board, setBoard] = useState(Array(9).fill(null))
 //dos turnos (x, o) hemos creado una prop para saber si está seleccionado o no. Ver abajo.
 const [turn, setTurn] = useState(TURNS.X)
 
-const updateBoard = () => {
+//13. Crear un estado para ver quién ha ganado:
+const [winner, setWinner] = useState(null) //vamos a utilizar null si no hay ganador y false si hay un empate
+//podríamos hacer también como con los turn arriba para decir quién es el winner.
+
+//15.Creamos un método para comprobar el tablero y ver quién es el ganador.
+//decirle que para cada combinación ganadora que tenemos en los winnercombos
+//mirar primero si hay una x o un o, después si tiene lo mismo que el anterior, y lo mismo con el tercero
+const checkWinner = (boardToCheck) => {
+  //revisamos todas las combinaciones ganadoras para ver si x u o ganó
+  for (const combo of WINNER_COMBOS) {
+    const [a, b, c] = combo 
+    if (
+      boardToCheck[a] && // 0 -> x u o
+      boardToCheck[a] === boardToCheck[b] &&
+      boardToCheck[a] === boardToCheck[c]
+    ) {
+      return boardToCheck[a] //x u o (el ganador sería el que esté en el primer elemento a)
+    }
+  }
+  //si no hay ganador:
+  return null
+}
+
+
+const updateBoard = (index) => {
+ //12. Pasarle como parámetro el índice para saber en qué cuadradito estamos así podemos actualizar el board con esa información. 
+ //Vamos a tener un nuevo board, que como recibe el índice vamos a ponerle el valor del turno actual (x u o). Y después lo actualizamos
+ //vamos a decirle que no actualice esta posición si ya tiene algo.
+  
+  if (board[index] || winner) return //con esto no hace nada //17. Le añadimos o si hay un ganador, porque no tendría sentido seguir jugando.
+//cuando tenemos una x u o en esta posición o hay un ganador no se actualiza esta posición
+
+ //con esto de abajo actualizamos el tablero
+  const newBoard = [...board]
+  newBoard[index] = turn
+  setBoard(newBoard)//como esta actualización del estado es asíncrona, no podemos fiarnos de que en la actualización
+  //del checkwinner va a tener el valor actualizado
+
+ //con esto cambiamos el turno
   const newTurn = turn === TURNS.X ? TURNS.O : TURNS.X
   setTurn(newTurn) //11.para actualizar el estado. Cada vez que haga click en un cuadrado cambio el turno
+
+  //16. Revisamos si hay un ganador.
+  const newWinner = checkWinner(newBoard) //le pasamos el nuevo tablero que tiene el último movimiento
+    //le pasamos el valor actualizado porque el estado es asíncrono
+    if (newWinner) {
+      //alert(`El ganador es ${newWinner}`) //ponga la alerta antes o después del setWinner se muestra antes de mostrar la última x u o
+      //porque los estados en React son asíncronos y no afectan al renderizado, eso significa que se ejecuta lo siguiente aunque no se haya actualizado aún el estado 
+      //aquí o podemos fiarnos de tener el nuevo estado de winner.
+      setWinner(newWinner)
+    } //falta por hacer comprobar si se ha acabado el juego
 }
 //2.Crear el tablero que será un array que tendrá 9 posiciones que al principio será null. Originalmente estaba dentro de la app. Ver 4
 //const board = Array(9).fill(null)
