@@ -1,62 +1,31 @@
 import { useState } from 'react'
-import './App.css'
+//import './App.css' //creo que no hace falta
+import confetti from "canvas-confetti"
 
-//1.Crear constante para los turnos (un objeto):
-const TURNS = {
-  X: "X",
-  O: "O"
-}
+import { Square } from "./components/Square.jsx"
+import { TURNS } from "./constants.js"
+import { checkWinnerFrom, checkEndGame } from "./logic/board.js" //32. Añadimos aquí el checkEndGame
+import { WinnerModal } from "./components/WinnerModal.jsx"
 
+//27. Ponemos el square que estaba aquí en un componente aparte. Ponemos export antes de const y lo importamos arriba
 
-//4.Crear un cuadrado, que es la posición desde donde se va a jugar en cada movimiento.
-//Vamos a crear el cuadrado del tablero y vamos a utilizar como propiedades el children, que será lo que tenga dentro
-//del tablero (la x o la o), vamos a tener también una forma de actualizar el tablero y vamos a dejar el index para saber
-//la posición del cuadradito.
-//Square sería un componente separado de la App que podemos reutilizar.
-const Square = ({ children, isSelected, updateBoard, index }) => {
-  // return (
-  //   //vamos a renderizar lo que teníamos antes en el return de abajo.
-  // <div className="square">
-  //   {children}
-  // </div>
-  //   )
+//28. Sacamos las constantes de arriba de (turn y winner combos) y las ponemos en un archivo aparte que se llama constants.js y lo exportamos arriba
+//y les ponemos export delante de const e importamos el archivo arriba
 
-  //8. Le pasamos la prop isSelected para saber de quién es el turno. Ver 7
-//vamos a decirle
+//29. Creamos la carpeta logic y ponemos el checkwinner y hacemos lo mismo que con los otros.
+//creamos dentro los archivos board.js y ponemos dentro el checkwinner
+//tenemos que importar en ese archivo el winner_combos. Y cambiamos el nombre de checkWinner por checkWinnerFrom
+//le añadimos el export const... y lo importamos arriba
+//y quitamos de arriba que estaba import { TURNS, WINNER_COMBOS } from... le quitamos el winner-combos
+//en updateBoard abajo cambiamos el nombre de checkWinner por checkWinnerFrom: const newWinner = checkWinner(newBoard) 
 
-  const className = `square ${isSelected ? "is-selected" : ""}`  
-  
-  // return (
-  //   //ahora vamos a hacer mejor un renderizado condicional de quién es el turno.
-  // <div className={className}>
-  //   {children}
-  // </div>
-  //   )
+//30. Creamos otro componente llamado Winner y sacamos todo eso de aquí.
 
-  //10. Cambiar el return anterior y poner que onClick update Board
-  //el onClick llama al handleClick que llama la updateBoard. Luego veremos qué le pasamos ahí
-  const handleClick = () => {
-    updateBoard(index)
-  }
+//31. TODO ESTO LO DEBERÍAMOS HABER PUESTO APARTE DESDE EL PRINCIPIO. ESTÁ HECHO ASÍ PARA VER CÓMO COMPONETIZAR LO QUE SE PUEDA
+//Poner la lógica que sea de JS puro aparte para poder usarlo con Vue, Angular, etc
+//Podríamos sacar el board de abajo aparte también. Hacerlo nosotros
 
-  return (
-    <div onClick={handleClick} className={className}>
-      {children}
-    </div>
-  )
-}
-
-//14.Podríamos crear arrays con las combinaciones ganadoras:
-const WINNER_COMBOS = [
-  [0, 1, 2], //si las x o las o están en esta posición
-  [3, 4, 5], //las 3 primeras son las combinaciones ganadoras horizontales, las otras 3 las verticales, y las últimas 2 las diagonales
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],  
-]
+//32. Sacar fuera y hacer lo mismo con const checkEndGame y moverlo a board.
 
 function App() {
 //5. Movemos board dentro de la App y vamos a convertirlo en un estado.
@@ -79,25 +48,14 @@ const [turn, setTurn] = useState(TURNS.X)
 const [winner, setWinner] = useState(null) //vamos a utilizar null si no hay ganador y false si hay un empate
 //podríamos hacer también como con los turn arriba para decir quién es el winner.
 
-//15.Creamos un método para comprobar el tablero y ver quién es el ganador.
-//decirle que para cada combinación ganadora que tenemos en los winnercombos
-//mirar primero si hay una x o un o, después si tiene lo mismo que el anterior, y lo mismo con el tercero
-const checkWinner = (boardToCheck) => {
-  //revisamos todas las combinaciones ganadoras para ver si x u o ganó
-  for (const combo of WINNER_COMBOS) {
-    const [a, b, c] = combo 
-    if (
-      boardToCheck[a] && // 0 -> x u o
-      boardToCheck[a] === boardToCheck[b] &&
-      boardToCheck[a] === boardToCheck[c]
-    ) {
-      return boardToCheck[a] //x u o (el ganador sería el que esté en el primer elemento a)
-    }
-  }
-  //si no hay ganador:
-  return null
+//18. Resetear juego volviendo el/los estados a sus valores iniciales (array 9 fill null, turn X)
+//pasarle las mismas props y los mismos estados para que nuestra interfaz se replique
+//no es una buena práctica hacer esto refrescando la página y cargándolo todo de nuevo si solo quieres resetear el estado de este componente
+const resetGame =  () => {
+setBoard(Array(9).fill(null))
+setTurn(TURNS.X)
+setWinner(null)
 }
-
 
 const updateBoard = (index) => {
  //12. Pasarle como parámetro el índice para saber en qué cuadradito estamos así podemos actualizar el board con esa información. 
@@ -118,26 +76,37 @@ const updateBoard = (index) => {
   setTurn(newTurn) //11.para actualizar el estado. Cada vez que haga click en un cuadrado cambio el turno
 
   //16. Revisamos si hay un ganador.
-  const newWinner = checkWinner(newBoard) //le pasamos el nuevo tablero que tiene el último movimiento
+  const newWinner = checkWinnerFrom(newBoard) //le pasamos el nuevo tablero que tiene el último movimiento
     //le pasamos el valor actualizado porque el estado es asíncrono
     if (newWinner) {
       //alert(`El ganador es ${newWinner}`) //ponga la alerta antes o después del setWinner se muestra antes de mostrar la última x u o
       //porque los estados en React son asíncronos y no afectan al renderizado, eso significa que se ejecuta lo siguiente aunque no se haya actualizado aún el estado 
       //aquí o podemos fiarnos de tener el nuevo estado de winner.
       setWinner(newWinner)
-    } //falta por hacer comprobar si se ha acabado el juego
+      confetti() //26.Añadimos este efecto
+     //falta por hacer comprobar si se ha acabado el juego: 20. Ver si hay empate:
+    } else if (checkEndGame(newBoard)) {
+      setWinner(false) //empate.
+    }
 }
+
 //2.Crear el tablero que será un array que tendrá 9 posiciones que al principio será null. Originalmente estaba dentro de la app. Ver 4
 //const board = Array(9).fill(null)
  
   return (  
     <main className="board"> 
       <h1>Tic-Tac-Toe</h1> 
-      <section className="game">
+
+      {/* 19. Poner también un botón fuera */}
+      <button onClick={resetGame}>Reset del juego</button>
+
+      {/* A.SECCIÓN PARA EL JUEGO */}
+      <section className="game"> 
         {
           // 3. Podríamos llamarlo cell o como querarmos pero lo que queremos renderizar por ahora
           // es la posición 0, 1... por eso lo vamos a llamar index. Se muestra el grid con los números del 0 al 8
-          board.map((_, index) => {
+          //23a.al principio puso _, index porque no estábamos usando _ y lo puso así. Después lo cambió por square
+          board.map((square, index) => {
             return (
               // esto se pasa arriba y ponemos en su lugar el nombre del componente
               // <div className="cell" key={index}>
@@ -163,13 +132,17 @@ const updateBoard = (index) => {
                 {index} Tenemos que crear un estado para guardar cada vez que el usuario haga click en cada posición.
                 Vamos a necesitar meter el board dentro de la aplicación, originalmente lo pusimos fuera porque cuando en el square se haga un click
                 vamos a tener que actualizar el tablero para volver a renderizarlo y el usuario pueda ver si se ha puesto una x o un o*/}
-                {board[index]}
+                {/* {board[index]} 23b.cambiamos esto por lo de abajo. Funciona igual*/}
+                {square}
               </Square>
+              //24. Vamos a añadir una dependencia que se llama canva confetti para darle efectos
+              //npm install canvas-confetti -E e importarlo arriba
             )
           })
         }
       </section>
 
+      {/* B.SECCIÓN PARA LOS TURNOS */}
       <section className="turn">
       {/* 7. Para saber de quién es el turno visualmente vamos a crear una prop llamada isSelected (tenemos que ir arriba y pasárselo a Square). Como tenemos un estado llamado turn, le vamos a decir que
       cuando el estado sea turns.x el estado seleccionado es el de la x y lo mismo con la o. Así el componente square cambia visualmente    */}
@@ -179,9 +152,39 @@ const updateBoard = (index) => {
         <Square isSelected={turn === TURNS.O}>
           {TURNS.O}
         </Square>
-
       </section>
+      
+      <WinnerModal resetGame={resetGame} winner={winner} />
+    
+    {/* C.SECCIÓN. 27. Al final la sacamos y modificamos un poco. Ver WinnerModal. Y la ponemos justo arriba y le pasamos el resetGame y el winner */}
+      {/* 17. hacer sección con renderizado condicional: Si el winner es diferente a null que es por defecto, vamos a hacer algo.
+      Vamos a poner también un footer para que después podamos reiniciar la partida  */}
+     
+     {/* {
+        winner !== null && (
+          <section className="winner">
+            <div className="text">
+              <h2>
+                {
+                  winner === false 
+                  ? "Empate"
+                  : "Ganó: "
+                }
+              </h2>
 
+              <header className="win">
+                {winner && <Square>{winner}</Square>}
+              </header>
+
+              <footer> */}
+                {/* Poner un botón para resetear el juego. Ver arriba. */}
+                {/* <button onClick={resetGame}>Empezar de nuevo</button>
+              </footer>
+            </div>
+          </section>
+        )
+      } */}
+    
     </main>      
   )
 }
