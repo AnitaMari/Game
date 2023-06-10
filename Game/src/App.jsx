@@ -6,7 +6,6 @@ import { Square } from "./components/Square.jsx"
 import { TURNS } from "./constants.js"
 import { checkWinnerFrom, checkEndGame } from "./logic/board.js" //32. Añadimos aquí el checkEndGame
 import { WinnerModal } from "./components/WinnerModal.jsx"
-// import { saveGameToStorage, resetGameStorage } from "./logic/storage/index.js"
 
 //27. Ponemos el square que estaba aquí en un componente aparte. Ponemos export antes de const y lo importamos arriba
 
@@ -39,28 +38,21 @@ function App() {
 //Ahora en lugar de una variable tenemos un array de dos posiciones, la posición y una forma de actualizarla.
 //en lugar de null podríamos poner useState(["x", "x", "o", "x", "o", "o", "x, "o", "x"]) y en el return abajo en lugar de {index} poner {board[index]}
 //y se verían las x y las o cada uno en su cuadradito.
+
+//34. Todos los hooks (useState en este caso) no pueden estar dentro de un if, while, loop... tiene que estar en el cuerpo
+//cambiamos el estado de arriba y va a inicializar dependiendo de si hay una partida guardada en local storage
 const [board, setBoard] = useState(() => {
-  const boardFromStorage = window.localStorage.getItem("board")
+  //35b. //console.log("inicializar estado del board")
+  const boardFromStorage = window.localStorage.getItem("board") //si lo pusiéramos fuera más arriba se ejecutaría en cada render de forma innecesaria y leer del local storage es lento
+  //como el estado solo se inicializa una vez, si lo ponemos aquí solo se ejecutará una vez. Haremos lo mismo con los turnos.
   return boardFromStorage ? JSON.parse(boardFromStorage) :
   (Array(9).fill(null))
-})
-//console.log(board)
-
-//34. //todos los hooks (useState en este caso) no pueden estar dentro de un if, while, loop... tiene que estar en el cuerpo
-//cambiamos el estado de arriba y va a inicializar dependiendo de si hay una partida guardada en local storage
-// const [board, setBoard] = useState(() => {
-
-  //35b.
-  //console.log("inicializar estado del board")
-  
-  // const boardFromStorage = window.localStorage.getItem("board") //si lo pusiéramos fuera más arriba se ejecutaría en cada render de forma innecesaria y leer del local storage es lento
-  //como el estado solo se inicializa una vez, si lo ponemos aquí solo se ejecutará una vez. Haremos lo mismo con los turnos.
-  // return boardFromStorage ? JSON.parse(boardFromStorage) : Array(9).fill(null)
-
-//otra opción: 
+  //otra opción: 
 //if (boardFromStorage) return JSON.parse(boardFromStorage)
 //return Array(9).fill(null)
 // })
+})
+//console.log(board)
 
 //6.Necesitamos otro estado para ver de quién es el turno. Vamos a hacer que empiece el turno la x.
 //Esto devuelve un array de dos posiciones: la primera es el valor del estado, y la segunda cómo actualizarlo.
@@ -70,6 +62,8 @@ const [board, setBoard] = useState(() => {
 
 //36.Cambiamos lo de arriba también dependiendo de si hay algo guardado en el local storage
 const [turn, setTurn] = useState(() => {
+  //el callback dentro del useState es una función que devuelve el valor con el que quiero inicializar el estado 
+  //la inicialización del estado solo ocurre una vez
   const turnFromStorage = window.localStorage.getItem("turn")
   return turnFromStorage ?? TURNS.X // || esto mira si es falsy, y ?? si es null o undefined
 })
@@ -86,15 +80,12 @@ setBoard(Array(9).fill(null))
 setTurn(TURNS.X)
 setWinner(null)
 
-// //aquí estaba el 37 pero lo sacamos fuera
-// resetGameStorage()
-// }
-// const resetGameStorage = () => {
-  //37.Asegurarnos que cuando reseteemos el juego reseteemos también lo que tenemos en el local storage:
+//37.Asegurarnos que cuando reseteemos el juego reseteemos también lo que tenemos en el local storage:
       window.localStorage.removeItem("board")
       window.localStorage.removeItem("turn")
   }
-//38. Mover lo del local storage fuera. Si estuviéramos usando el servir el local storage no funcionaría
+
+//38. Podríamos mover lo del local storage fuera y ponerlo en logic index por ejemplo. Si estuviéramos usando el server, el local storage no funcionaría
 //pero solo estamos usando el cliente
 
 const updateBoard = (index) => {
@@ -120,14 +111,8 @@ const updateBoard = (index) => {
 //la array a string y después lo podamos volver a transformar:
 window.localStorage.setItem("board", JSON.stringify(newBoard))
 window.localStorage.setItem("turn", newTurn) //con turn como lo tenía él no funciona
-// }
 
-// saveGameToStorage({
-//   board: newBoard,
-//   turn: newTurn
-// })
-
-  //16. Revisamos si hay un ganador.
+//16. Revisamos si hay un ganador.
   const newWinner = checkWinnerFrom(newBoard) //le pasamos el nuevo tablero que tiene el último movimiento
     //le pasamos el valor actualizado porque el estado es asíncrono
     if (newWinner) {
