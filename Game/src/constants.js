@@ -1,6 +1,6 @@
 //1.Crear constante para los turnos (un objeto):
 export const TURNS = {
-  X: "🍋",//Tecla windows más punto para seleccionar emoji
+  X: "🍟",//Tecla windows más punto para seleccionar emoji
   O: "🍉"
 }
 

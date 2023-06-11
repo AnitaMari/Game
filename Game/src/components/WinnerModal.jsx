@@ -3,7 +3,7 @@ import { Square } from "./Square.jsx" //lo importamos porque lo necesitamos abaj
 export function WinnerModal ({ winner, resetGame }) { //poner entre () lo que vamos a necesitar. Ver abajo
     if (winner === null) return null
 
-    const winnerText = winner === false ? "Empate" : "Ganó: "
+    const winnerText = winner === false ? "Draw" : "The Winner is: "
 
 {/* C.SECCIÓN  
 17. hacer sección con renderizado condicional: Si el winner es diferente a null que es por defecto, vamos a hacer algo.
@@ -22,7 +22,7 @@ Poner el renderizado lo más limpio posible  */}
 
               <footer>
                 {/* Poner un botón para resetear el juego. Ver arriba. */}
-                <button onClick={resetGame}>Empezar de nuevo</button>
+                <button onClick={resetGame}>Start Over</button>
               </footer>
             </div>
           </section>

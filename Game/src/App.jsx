@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 //import './App.css' //creo que no hace falta
 import confetti from "canvas-confetti"
 
@@ -127,15 +127,24 @@ window.localStorage.setItem("turn", newTurn) //con turn como lo tenía él no fu
     }
  }
 
+// 39. Hacemos algo con el hook useEffect. Ver al final cómo se usa
+useEffect(() => {
+ console.log("useEffect") //al reiniciar la partida se ejecuta dos veces, y después cada vez que hay un movimiento porque se actualiza el estado y se renderiza el componente
+}) 
+//si solo lo quisiéramos renderizar una vez al principio tendríamos que poner en la lista de dependencias que es el segundo parámetro una [] vacía
+//}, []) //podríamos decirle también [turn] para que se ejecute el turno, o el board y el turno [turn, board], o cuando hay un ganador [winner] (podríamos usarlo para guardarlo en la base de datos cuando haya un winner)
+//o hacer una petición de datos cuando se renderice el componente
+
+
 //2.Crear el tablero que será un array que tendrá 9 posiciones que al principio será null. Originalmente estaba dentro de la app. Ver 4
 //const board = Array(9).fill(null)
  
   return (  
     <main className="board"> 
-      <h1>Tic-Tac-Toe</h1> 
+      <h1>Junk Food VS Healthy Food</h1> 
 
       {/* 19. Poner también un botón fuera */}
-      <button onClick={resetGame}>Reset del juego</button>
+      <button onClick={resetGame}>RESET</button>
 
       {/* A.SECCIÓN PARA EL JUEGO */}
       <section className="game"> 
@@ -227,3 +236,29 @@ window.localStorage.setItem("turn", newTurn) //con turn como lo tenía él no fu
 }
 
 export default App
+
+// CÓMO USAR LOS HOOKS USESTATE Y USEEFFECT. (Todos los hooks son funciones.)
+
+// -useState: nos permite tener un estado en nuestro componente que al cambiar se vuelve a renderizar
+// para reflejar en la interfaz los cambios
+
+// -useEffect: Nos permite ejecutar código arbitrario (el que queramos) cuando el componente se monta en el DOM y cada vez
+// que cambian las dependencias que nosotros le digamos ("cuando esta dependencia cambie, ejecuta este código").
+// Recibe 2 parámetros: el código para ejecutar y list of dependencies (una []. Es opcional. Si no se PointerEvent, en lugar de ejecutarse aunque sea una vez, lo hará cada vez que se renderice el componente)   
+// sirve para ejecutar un efecto cuando cambie una información. Por ejemplo, para guardarlo en una base de datos cuando haya un winner o hacer una petición de datos cuando se renderice el componente
+//o recuperar información del local storage
+
+// import { useState, useEffect } from "react"
+
+// const Component = () => {
+//   const [value, setValue] = useState(false)
+//
+//   useEffect(codeToExecute, listOfDependencies)
+//   el codeToExecute será una función:
+
+//   useEffect(() => {
+//   console.log("El código a ejecutar") //como mínimo se ejecutará una vez
+// }, listOfDependencies) //si no ponemos la listOfDependencies el código se ejecutará cada vez que se renderice el componente.
+// }
+
+// }
