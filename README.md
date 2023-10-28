@@ -20,3 +20,8 @@ Next, you have to run the command "npm run dev" to initialize the project in the
 ## Demo
 
 This is the video of the project:
+
+
+
+https://github.com/AnitaMari/Game/assets/116835304/bfbef6f7-aace-4a1b-978e-a9cff454c3ab
+
