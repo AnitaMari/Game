@@ -1,7 +1,7 @@
 //1.Crear constante para los turnos (un objeto):
 export const TURNS = {
-  X: "🍟",//Tecla windows más punto para seleccionar emoji
-  O: "🍉"
+  X: "👻",//Tecla windows más punto para seleccionar emoji
+  O: "🤖"
 }
 
 //14.Podríamos crear arrays con las combinaciones ganadoras:
