@@ -141,7 +141,7 @@ useEffect(() => {
  
   return (  
     <main className="board"> 
-      <h1>Junk Food VS Healthy Food</h1> 
+      <h1>TIC-TAC-TOE  GAME</h1> 
 
       {/* 19. Poner también un botón fuera */}
       <button onClick={resetGame}>RESET</button>
